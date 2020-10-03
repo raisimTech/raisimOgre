@@ -1,0 +1,13 @@
+filament/*
+build/*
+build-*/*
+cmake-*
+.idea/*
+third_party/filament/*
+third_party/filament_src/*
+.vscode/*
+lib/raisim/*
+.project/*
+*.mp4
+*imgui.ini
+examples/rsc/activation.raisim
