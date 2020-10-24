@@ -25,7 +25,7 @@ raisimOgre is a visualizer for raisim. It is a simple wrapper around Ogre3d (htt
 Please install/save everything locally to prevent corrupting your system files. We will assume that you have a single workspace where you save all repos related to raisim. Here we introduce two variables
 
 - WORKSPACE: workspace where you clone your git repos
-- LOCAL_BUILD: build directory where you install exported cmake libraries
+- LOCAL_INSTALL: build directory where you install exported cmake libraries
 
 To link against shared libraries in LOCAL_BUILD, you have to let LDD know where the libraries are installed. This can be done adding the following line to your ```~/bashrc```
 
@@ -56,7 +56,7 @@ cd ogre
 git checkout raisimOgre
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$LOCAL_BUILD -DOGRE_BUILD_COMPONENT_BITES=ON -OGRE_BUILD_COMPONENT_JAVA=OFF -DOGRE_BUILD_DEPENDENCIES=OFF -DOGRE_BUILD_SAMPLES=False
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$LOCAL_INSTALL -DOGRE_BUILD_COMPONENT_BITES=ON -OGRE_BUILD_COMPONENT_JAVA=OFF -DOGRE_BUILD_DEPENDENCIES=OFF -DOGRE_BUILD_SAMPLES=False
 
 make install -j8
 ```
@@ -66,7 +66,7 @@ Finally, build raisimOgre (assuming that you already have cloned this repo).
 ```commandline
 cd $WORKSPACE
 cd raisimOgre && mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$LOCAL_BUILD -DCMAKE_INSTALL_PREFIX=$LOCAL_BUILD -DRAISIM_OGRE_EXAMPLES=ON
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$LOCAL_INSTALL -DCMAKE_INSTALL_PREFIX=$LOCAL_INSTALL -DRAISIM_OGRE_EXAMPLES=ON
 make install -j8
 ```
 
