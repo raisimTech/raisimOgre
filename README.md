@@ -27,10 +27,10 @@ Please install/save everything locally to prevent corrupting your system files. 
 - WORKSPACE: workspace where you clone your git repos
 - LOCAL_INSTALL: build directory where you install exported cmake libraries
 
-To link against shared libraries in LOCAL_BUILD, you have to let LDD know where the libraries are installed. This can be done adding the following line to your ```~/bashrc```
+To link against shared libraries in LOCAL_INSTALL, you have to let LDD know where the libraries are installed. This can be done adding the following line to your ```~/bashrc```
 
 ```commandline
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LOCAL_BUILD/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LOCAL_INSTALL/lib
 ```
 
 If you are using an IDE, ensure that it loads your bashrc. For Clion (which is the recommended IDE) users, the instruction can be found [here](https://github.com/jhwangbo/raisimHelp/blob/master/README.md#how-to-use-variables-defined-in-your-bashrc-in-clion).
