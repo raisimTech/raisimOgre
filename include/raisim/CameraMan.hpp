@@ -31,7 +31,7 @@ enum CameraStyle   /// enumerator values for different styles of camera movement
 /**
 Utility class for controlling the camera in samples.
 */
-class _OgreBitesExport CameraMan : public InputListener
+class CameraMan : public InputListener
 {
  public:
   CameraMan(Ogre::SceneNode* cam);

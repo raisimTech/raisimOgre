@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 
   /// create raisim world
   raisim::World world;
-  world.setTimeStep(0.0025);
+  world.setTimeStep(0.01);
 
   auto vis = raisim::OgreVis::get();
 
@@ -93,45 +93,54 @@ int main(int argc, char **argv) {
   jointVelocityTarget.setZero();
   jointPgain.tail(12).setConstant(200.0);
   jointDgain.tail(12).setConstant(10.0);
+  std::vector<raisim::ArticulatedSystem*> aliengos;
+  std::vector<std::vector<raisim::GraphicObject>*> aliengo_vis;
 
-  const size_t N = 8;
+  const int N = 12;
 
-  auto aliengo = world.addArticulatedSystem(raisim::loadResource("aliengo/aliengo.urdf"));
-  auto aliengoVis = vis->createGraphicalObject(aliengo, "aliengo");
-  aliengo->setGeneralizedCoordinate({0, 0, 0.48, 1, 0.0, 0.0, 0.0, 0.0, 0.5, -1, 0, 0.5, -1,
-                                     0.00, 0.5, -1, 0, 0.5, -0.7});
-  aliengo->setGeneralizedForce(Eigen::VectorXd::Zero(aliengo->getDOF()));
-  aliengo->setControlMode(raisim::ControlMode::PD_PLUS_FEEDFORWARD_TORQUE);
-  aliengo->setPdGains(jointPgain, jointDgain);
-  aliengo->setName("aliengo");
+  for (int i = 0; i < N; i++) {
+    for (int j = 0; j < N; j++) {
+      aliengos.push_back(world.addArticulatedSystem(raisim::loadResource("aliengo/aliengo.urdf")));
+
+      aliengo_vis.push_back(vis->createGraphicalObject(aliengos.back(), "aliengo" + std::to_string(i) + "/" + std::to_string(j)));
+      aliengos.back()->setGeneralizedCoordinate({double((i-N/2)*1.5), double((j-N/2)*1.5), 0.48, 1, 0.0, 0.0, 0.0, 0.0, 0.5, -1, 0, 0.5, -1,
+                                         0.00, 0.5, -1, 0, 0.5, -0.7});
+      aliengos.back()->setGeneralizedForce(Eigen::VectorXd::Zero(aliengos.back()->getDOF()));
+      aliengos.back()->setControlMode(raisim::ControlMode::PD_PLUS_FEEDFORWARD_TORQUE);
+      aliengos.back()->setPdGains(jointPgain, jointDgain);
+      aliengos.back()->setName("aliengo" + std::to_string(i) + "/" + std::to_string(j));
+    }
+  }
+
 
   std::default_random_engine generator;
   std::normal_distribution<double> distribution(0.0, 0.2);
   std::srand(std::time(nullptr));
-  aliengo->printOutBodyNamesInOrder();
 
   // lambda function for the controller
-  auto controller = [&aliengo, &generator, &distribution]() {
+  auto controller = [&aliengos, &generator, &distribution]() {
     static size_t controlDecimation = 0;
 
-    if (controlDecimation++ % 2500 == 0)
-      aliengo->setGeneralizedCoordinate({0, 0, 0.48, 1, 0.0, 0.0, 0.0, 0.0, 0.5, -1,
-                                         0, 0.5, -1, 0.00, 0.5, -1, 0, 0.5, -1});
-    if (controlDecimation % 50 != 0)
+    if (controlDecimation++ % 100 != 0)
       return;
 
     /// laikago joint PD controller
     Eigen::VectorXd jointNominalConfig(19), jointVelocityTarget(18);
     jointVelocityTarget.setZero();
 
-    for (size_t i = 0; i < N; i++) {
-      for (size_t j = 0; j < N; j++) {
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < N; j++) {
+        if (controlDecimation++ % 2500 == 0)
+          aliengos[N*i+j]->setGeneralizedCoordinate({double((i-N/2)*1.5), double((j-N/2)*1.5), 0.48, 1, 0.0, 0.0, 0.0, 0.0,
+                                                 0.5, -1,
+                                                 0, 0.5, -1, 0.00, 0.5, -1, 0, 0.5, -1});
+
         jointNominalConfig << 0, 0, 0, 0, 0, 0, 0, 0.0, 0.5, -1, 0, 0.5, -1, 0.00, 0.5, -1, 0, 0.5, -1.;
 
-        for (size_t k = 0; k < aliengo->getGeneralizedCoordinateDim(); k++)
+        for (size_t k = 0; k < aliengos[0]->getGeneralizedCoordinateDim(); k++)
           jointNominalConfig(k) += distribution(generator);
 
-        aliengo->setPdTarget(jointNominalConfig, jointVelocityTarget);
+        aliengos[N*i+j]->setPdTarget(jointNominalConfig, jointVelocityTarget);
       }
     }
   };
@@ -139,7 +148,7 @@ int main(int argc, char **argv) {
   vis->setControlCallback(controller);
 
   /// set camera
-  vis->select(aliengoVis->at(0));
+  vis->select(aliengo_vis[0]->at(0));
   vis->getCameraMan()->setYawPitchDist(Ogre::Radian(0.), Ogre::Radian(-1.), 3);
 
   /// run the app
