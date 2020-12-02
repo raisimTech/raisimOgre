@@ -67,7 +67,7 @@ void setupCallback() {
 
 int main(int argc, char **argv) {
   /// create raisim world
-  raisim::World::setActivationKey("/home/jemin/activation.raisim");
+  raisim::World::setActivationKey(raisim::loadResource("activation.raisim"));
   raisim::World world;
   world.setTimeStep(0.002);
   world.setContactSolverParam(1.0, 1.0, 1.0, 500, 1e-20);
