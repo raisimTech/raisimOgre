@@ -18,8 +18,6 @@ raisimOgre is a visualizer for raisim. It is a simple wrapper around Ogre3d (htt
 
 ## Related repos
 - [raisimLib](https://github.com/raisimTech/raisimLib): the physics engine
-- [raisimGym](https://github.com/leggedrobotics/raisimGym): a few gym environments using RAISIM
-- [raisimPy](https://github.com/robotlearn/raisimpy): a (third-party) python wrapper of RAISIM
 
 ## Install
 Please install/save everything locally to prevent corrupting your system files. We will assume that you have a single workspace where you save all repos related to raisim. Here we introduce two variables
