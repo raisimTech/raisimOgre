@@ -56,7 +56,7 @@ public:
 
   /** return a pointer of the singleton**/
   static OgreVis *get() {
-    if(!singletonPtr) 
+    if(!singletonPtr)
       singletonPtr.reset(new OgreVis);
     return singletonPtr.get();
   }
@@ -458,7 +458,5 @@ private:
 };
 
 } // namespace raisim
-
-std::unique_ptr<raisim::OgreVis> raisim::OgreVis::singletonPtr(nullptr);
 
 #endif // RAISIM_OGRE_VIS_HPP

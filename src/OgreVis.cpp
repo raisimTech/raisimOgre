@@ -16,6 +16,8 @@
 
 namespace raisim {
 
+std::unique_ptr<raisim::OgreVis> raisim::OgreVis::singletonPtr(nullptr);
+
 OgreVis::~OgreVis() {
   if (videoThread_ && videoThread_->joinable()) videoThread_->join();
 }
