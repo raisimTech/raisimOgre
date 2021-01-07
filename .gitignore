@@ -11,3 +11,4 @@ lib/raisim/*
 *.mp4
 *imgui.ini
 examples/rsc/activation.raisim
+**/activation.raisim

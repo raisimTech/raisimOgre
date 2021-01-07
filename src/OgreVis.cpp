@@ -463,7 +463,7 @@ void OgreVis::remove(raisim::Object *ob) {
   auto set = objectSet_[ob];
 
   for (auto &go : *set.first) {
-    if (primitiveMeshNames_.find(go.meshName) == primitiveMeshNames_.end() && meshUsageCount_[go.meshName] == 1) {
+    if (primitiveMeshNames_.find(go.meshName) != primitiveMeshNames_.end() && meshUsageCount_[go.meshName] == 1) {
       Ogre::MeshManager::getSingleton().unload(go.meshName);
       Ogre::MeshPtr mesh = Ogre::MeshManager::getSingleton().getByName(go.meshName);
       Ogre::MeshManager::getSingleton().remove(mesh);
