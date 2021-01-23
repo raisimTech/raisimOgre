@@ -94,8 +94,8 @@ int main(int argc, char **argv) {
 
   for(int row = 0; row < N; row++) {
     for(int col = 0; col < N; col++) {
-      auto monkey = world.addMesh(monkeyFile, 1.0, inertia, com);
-      vis->createGraphicalObject(monkey, "mesh" + std::to_string(row) + std::to_string(col), "monkey");
+      auto monkey = world.addMesh(monkeyFile, 1.0, inertia, com, 0.5);
+      vis->createGraphicalObject(monkey, "mesh" + std::to_string(row) + std::to_string(col), "monkey", 0.5);
       monkey->setPosition(-gap*(N/2) + gap*row, -gap*(N/2) + gap*col, 2.0 + gap*(row*N+col));
     }
   }

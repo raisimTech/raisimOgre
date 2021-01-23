@@ -1177,7 +1177,8 @@ std::vector<GraphicObject> *OgreVis::createGraphicalObject(raisim::HeightMap *hm
 
 std::vector<GraphicObject> *OgreVis::createGraphicalObject(raisim::Mesh *mesh,
                                                            const std::string &name,
-                                                           const std::string &material) {
+                                                           const std::string &material,
+                                                           double scale) {
 
   Mat<3, 3> rot;
   rot.setIdentity();
@@ -1188,7 +1189,7 @@ std::vector<GraphicObject> *OgreVis::createGraphicalObject(raisim::Mesh *mesh,
           createSingleGraphicalObject(name,
                                       meshName,
                                       material,
-                                      {1, 1, 1},
+                                      {scale, scale, scale},
                                       {0, 0, 0},
                                       rot,
                                       0,
