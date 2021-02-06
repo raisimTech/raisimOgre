@@ -225,7 +225,8 @@ public:
   * @param name unique identifier of the object */
   std::vector<GraphicObject> *createGraphicalObject(raisim::Mesh *mesh,
                                                     const std::string &name,
-                                                    const std::string &material = "default");
+                                                    const std::string &material = "default",
+                                                    double scale = 1.0);
 
   /**
   * @param as raisim articulated system object
