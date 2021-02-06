@@ -1303,7 +1303,6 @@ void OgreVis::renderOneFrame() {
     raisim::Vec<3> mid, p1, p2, norm;
     raisim::Mat<3, 3> rot;
     auto wobj = world_->getWire(wire.first);
-    wobj->update();
     p1 = wobj->getP1();
     p2 = wobj->getP2();
     raisim::vecadd(p1, p2, mid);
