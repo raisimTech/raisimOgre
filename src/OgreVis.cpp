@@ -1268,7 +1268,7 @@ void OgreVis::renderOneFrame() {
           if (!contact.isObjectA() && contact.getPairObjectBodyType() != raisim::BodyType::STATIC) continue;
           contactForces_[contactIdx].offset = contact.getPosition();
           raisim::Vec<3> zaxis;
-          matvecmul(contact.getContactFrame(), *contact.getImpulse(), zaxis);
+          matvecmul(contact.getContactFrame(), contact.getImpulse(), zaxis);
           raisim::Mat<3, 3> rot;
           double norm = zaxis.norm();
           if (norm == 0) {
