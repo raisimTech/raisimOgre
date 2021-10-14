@@ -49,7 +49,7 @@ sudo apt-get install libgles2-mesa-dev libxt-dev libxaw7-dev libsdl2-dev libzzip
 Now build Ogre from source. Make sure that you install it locally since otherwise it will overwrite your system ogre installation.
 ```commandline
 cd $WORKSPACE
-git clone https://github.com/leggedrobotics/ogre.git
+git clone https://github.com/raisimTech/raisimOgre.git
 cd ogre
 git checkout raisimOgre
 mkdir build
