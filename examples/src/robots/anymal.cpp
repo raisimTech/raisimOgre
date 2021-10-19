@@ -163,14 +163,11 @@ int main(int argc, char **argv) {
                      &oFilter]() {
     static size_t controlDecimation = 0;
     time += world.getTimeStep();
-    vel = anymal->getBaseOrientation().e().transpose() * anymal->getGeneralizedVelocity().e().segment<3>(3);
-    Eigen::Vector3d acc = (vel-preV) / world.getTimeStep() - anymal->getBaseOrientation().e().transpose() * world.getGravity().e();
-    std::cout<<"acc "<<acc.transpose()<<std::endl;
-    oFilter.update(vel, acc, world.getTimeStep());
-    preV = vel;
-
-    if(controlDecimation++ % 12500 == 0) {
-      anymal->setGeneralizedCoordinate({0, 0, 0.54, 1.0, 0.0, 0.0, 0.0, 0.03, 0.4,
+    if(controlDecimation++ % 20000 == 0) {
+//      Vec<4> quat = {1.2, 0.4, 0.5, 0.1};
+      Vec<4> quat = {1,0,0,0};
+      quat /= quat.norm();
+      anymal->setGeneralizedCoordinate({0, 0, 0.54, quat[0], quat[1], quat[2], quat[3], 0.03, 0.4,
                                         -0.8, -0.03, 0.4, -0.8, 0.03, -0.4, 0.8, -0.03, -0.4, 0.8});
       raisim::anymal_gui::reward::clear();
       raisim::anymal_gui::gait::clear();
@@ -179,12 +176,26 @@ int main(int argc, char **argv) {
       time = 0.;
     }
 
+    vel = anymal->getBaseOrientation().e().transpose() * anymal->getGeneralizedVelocity().e().segment<3>(3);
+    Eigen::Vector3d dummyG= {0,0,-1};
+//    Eigen::Vector3d acc = -anymal->getBaseOrientation().e().transpose() * world.getGravity().e();
+    Eigen::Vector3d acc = (vel-preV) / world.getTimeStep() - anymal->getBaseOrientation().e().transpose() * world.getGravity().e();
+    std::cout<<"acc "<<acc.transpose()<<std::endl;
+    Eigen::Vector3d avVel = (preV+vel)*0.5;
+    oFilter.update(avVel, acc, world.getTimeStep());
+    preV = vel;
+
     if(controlDecimation % 1 == 0) {
       Eigen::Matrix3d rot;
       oFilter.getRotationMatrix(rot);
-      std::cout<<"quat filter "<<rot.row(0)<<std::endl;
-      std::cout<<"quat raisim "<<anymal->getBaseOrientation().e().row(0)<<std::endl;
+      std::cout<<"quat filter\n"<<rot<<std::endl;
+      std::cout<<"quat raisim\n"<<anymal->getBaseOrientation().e()<<std::endl<<std::endl<<std::endl<<std::endl<<std::endl;
+
+//      std::cout<<"error "<<(rot.row(2) - anymal->getBaseOrientation().e().row(2)).norm()<<std::endl;
     }
+
+    if(controlDecimation == 3000)
+      exit(0);
 
     jointTorque = anymal->getGeneralizedForce().e().tail(12);
     jointSpeed = anymal->getGeneralizedVelocity().e().tail(12);
@@ -197,8 +208,8 @@ int main(int argc, char **argv) {
     jointVelocityTarget.setZero();
     jointNominalConfig << 0, 0, 0, 0, 0, 0, 0, 0.03, 0.3, -.6, -0.03, 0.3, -.6, 0.03, -0.3, .6, -0.03, -0.3, .6;
 
-//    for (size_t k = 0; k < anymal->getGeneralizedCoordinateDim(); k++)
-//      jointNominalConfig(k) += distribution(generator);
+    for (size_t k = 0; k < anymal->getGeneralizedCoordinateDim(); k++)
+      jointNominalConfig(k) += distribution(generator);
 
     anymal->setPdTarget(jointNominalConfig, jointVelocityTarget);
 
