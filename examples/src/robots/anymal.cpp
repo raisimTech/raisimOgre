@@ -33,6 +33,8 @@
 #include "anymal/videoLogger.hpp"
 #include "anymal/frameVisualizer.hpp"
 
+#include "OrientationFilter.h"
+
 using namespace raisim;
 
 void setupCallback() {
@@ -77,7 +79,7 @@ int main(int argc, char **argv) {
   /// create raisim world
   raisim::World::setActivationKey(raisim::loadResource("activation.raisim"));
   raisim::World world;
-  world.setTimeStep(0.0025);
+  world.setTimeStep(0.0005);
 
   /// just a shortcut
   auto vis = raisim::OgreVis::get();
@@ -118,7 +120,7 @@ int main(int argc, char **argv) {
   jointPgain.setZero();
   jointDgain.setZero();
   jointVelocityTarget.setZero();
-  jointPgain.tail(12).setConstant(200.0);
+  jointPgain.tail(12).setConstant(50.0);
   jointDgain.tail(12).setConstant(1.0);
 
   /// set anymal properties
@@ -143,6 +145,9 @@ int main(int argc, char **argv) {
   std::srand(std::time(nullptr));
   double time=0.;
 
+  raisim::OrientationFilter oFilter;
+  Eigen::Vector3d preV, vel; preV.setZero();
+
   /// lambda function for the controller
   auto controller = [anymal,
                      &generator,
@@ -152,11 +157,19 @@ int main(int argc, char **argv) {
                      &time,
                      &world,
                      &footIndices,
-                     &footContactState]() {
+                     &footContactState,
+                     &preV,
+                     &vel,
+                     &oFilter]() {
     static size_t controlDecimation = 0;
     time += world.getTimeStep();
+    vel = anymal->getBaseOrientation().e().transpose() * anymal->getGeneralizedVelocity().e().segment<3>(3);
+    Eigen::Vector3d acc = (vel-preV) / world.getTimeStep() - anymal->getBaseOrientation().e().transpose() * world.getGravity().e();
+    std::cout<<"acc "<<acc.transpose()<<std::endl;
+    oFilter.update(vel, acc, world.getTimeStep());
+    preV = vel;
 
-    if(controlDecimation++ % 2500 == 0) {
+    if(controlDecimation++ % 12500 == 0) {
       anymal->setGeneralizedCoordinate({0, 0, 0.54, 1.0, 0.0, 0.0, 0.0, 0.03, 0.4,
                                         -0.8, -0.03, 0.4, -0.8, 0.03, -0.4, 0.8, -0.03, -0.4, 0.8});
       raisim::anymal_gui::reward::clear();
@@ -166,10 +179,17 @@ int main(int argc, char **argv) {
       time = 0.;
     }
 
+    if(controlDecimation % 1 == 0) {
+      Eigen::Matrix3d rot;
+      oFilter.getRotationMatrix(rot);
+      std::cout<<"quat filter "<<rot.row(0)<<std::endl;
+      std::cout<<"quat raisim "<<anymal->getBaseOrientation().e().row(0)<<std::endl;
+    }
+
     jointTorque = anymal->getGeneralizedForce().e().tail(12);
     jointSpeed = anymal->getGeneralizedVelocity().e().tail(12);
 
-    if(controlDecimation % 100 != 0)
+    if(controlDecimation % 500 != 0)
       return;
 
     /// ANYmal joint PD controller
@@ -177,8 +197,8 @@ int main(int argc, char **argv) {
     jointVelocityTarget.setZero();
     jointNominalConfig << 0, 0, 0, 0, 0, 0, 0, 0.03, 0.3, -.6, -0.03, 0.3, -.6, 0.03, -0.3, .6, -0.03, -0.3, .6;
 
-    for (size_t k = 0; k < anymal->getGeneralizedCoordinateDim(); k++)
-      jointNominalConfig(k) += distribution(generator);
+//    for (size_t k = 0; k < anymal->getGeneralizedCoordinateDim(); k++)
+//      jointNominalConfig(k) += distribution(generator);
 
     anymal->setPdTarget(jointNominalConfig, jointVelocityTarget);
 
